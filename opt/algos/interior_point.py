@@ -1,7 +1,5 @@
 import numpy as np
 
-from opt.algos.descent import feasible_newtonLS
-from opt.algos.linesearch import backtracking
 
 class FeasibleNewtonCENT:
     def __init__(self, P, q, G, h, A, b, t):
@@ -47,7 +45,7 @@ class FeasibleNewtonCENT:
             Parameter for barrier.
         """
         self.F   = ObjectiveFunction(P, q)       
-        self.phi = BarrierFunction(G, h)      
+        self.phi = BarrierFunction(G, h)         
         self.A = A
         self.t = t
     
@@ -117,7 +115,7 @@ class ObjectiveFunction:
         q : `numpy.ndarray`
             (d,1)             
         """
-        self.P = p
+        self.P = P
         self.q = q
     
     def f(self, x):
@@ -199,7 +197,8 @@ class BarrierFunction:
         --------
         f(x) : `float`
             Evaluating logarithmic barrier function.
-        """        
+        """       
+        print(self.h - self.G@x)
         return -np.sum(np.log(self.h - self.G@x))
     
     def df(self, x):
@@ -229,7 +228,7 @@ class BarrierFunction:
         d2f(x) : `numpy.ndarray`
             (d,d) Evaluating second derivative of the logarithmic barrier function.
         """    
-        tmp = 1 / (self.h - self.G@x)
+        tmp = np.squeeze(1 / (self.h - self.G@x))
         return self.G.T@(np.diag(tmp)**2)@self.G  
 
 # class CENT:

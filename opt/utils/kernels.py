@@ -24,8 +24,6 @@ def polynomial_kernel_matrix(P, Q, c, degree):
     K : `numpy.ndarray`
         (nDataP,nDataQ) matrix, the polynomial kernel matrix of the P and Q data matrix.        
     """
-    P = P.astype('float32')
-    Q = Q.astype('float32')
     return ne.evaluate('(c + A)**d', {
         'A' : dgemm(alpha=1.0, a=P, b=Q, trans_b=True),
         'c' : c,
@@ -41,6 +39,11 @@ def gaussian_kernel_matrix(P, Q, c):
 
     k(p,q) = exp(-c*||p-q||^2)
            = exp(-c*[||p||^2 + ||q||^2 - 2 * p^T * q])
+           
+    C: sgemm(alpha=1.0, a=P, b=Q, trans_b=True)
+    P = P.astype(np.float32)
+    Q = Q.astype(np.float32)    
+    C: np.dot(P,Q.T)
 
     Parameters:
     -----------
@@ -57,8 +60,8 @@ def gaussian_kernel_matrix(P, Q, c):
         (nDataP,nDataQ) matrix, the gaussian kernel matrix of the P and Q data matrix.                 
     """
     # Calculate norm
-    P_norm = np.einsum('ij,ij->i',P,P,dtype='float32')
-    Q_norm = np.einsum('ij,ij->i',Q,Q,dtype='float32')
+    P_norm = np.einsum('ij,ij->i',P,P)
+    Q_norm = np.einsum('ij,ij->i',Q,Q)
     return ne.evaluate('exp(-gamma * (A + B - 2*C))', {
         'A' : P_norm[:,None],
         'B' : Q_norm[None,:],
