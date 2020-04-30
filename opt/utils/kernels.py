@@ -1,6 +1,6 @@
 import numpy as np
 import numexpr as ne
-from scipy.linalg.blas import dgemm
+from scipy.linalg.blas import dgemm, sgemm
 
 def polynomial_kernel_matrix(P, Q, c, degree):
     """
@@ -40,10 +40,11 @@ def gaussian_kernel_matrix(P, Q, c):
     k(p,q) = exp(-c*||p-q||^2)
            = exp(-c*[||p||^2 + ||q||^2 - 2 * p^T * q])
            
-    C: sgemm(alpha=1.0, a=P, b=Q, trans_b=True)
-    P = P.astype(np.float32)
-    Q = Q.astype(np.float32)    
-    C: np.dot(P,Q.T)
+    C: dgemm(alpha=1.0, a=P, b=Q, trans_b=True)  double precision
+    C: sgemm(alpha=1.0, a=P, b=Q, trans_b=True)  single precision
+    C: np.dot(P,Q.T)                             single precision
+            P = P.astype(np.float32)
+            Q = Q.astype(np.float32) 
 
     Parameters:
     -----------

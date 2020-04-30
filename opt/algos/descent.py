@@ -16,7 +16,7 @@ def feasible_newtonLS(F, ls, alpha0, x0, tol, max_iter):
     alpha0 : `float`
         initial step length.
     x0 : `numpy.ndarray`
-        Initial iterate.
+        (d,1) Feasible initial iterate.
     tol : `float`
         Stopping condition on minimal allowed step.
     max_iter : `int`
@@ -32,8 +32,48 @@ def feasible_newtonLS(F, ls, alpha0, x0, tol, max_iter):
         Number of iterations.
     info : `dict` of `list`
         Information about iteration.       
-    """
-    pass
+    """      
+    # Initialisation
+    nIter = 0
+    x_k  = x0
+    d    = x0.shape[0]
+    info = defaultdict(list)
+    info['xs'].append(x0)
+    info['alphas'].append(alpha0)   
+    
+    # Loop until convergence or maximum number of iterations
+    while nIter < max_iter:
+        # Increment iterations
+        nIter += 1
+        # Compute descent direction
+        try:
+            # Exact method
+            p_k = -np.linalg.solve(F.d2f(x_k), F.df(x_k))
+        except:
+            # Approximate
+            p_k = -np.linalg.pinv(F.d2f(x_k))@F.df(x_k)
+        if p_k.T@F.df(x_k)>0:
+            # Force to be descent direction (only active if F.d2f(x_k) not pos.def.)
+            p_k = -p_k       
+        # Get Newton step
+        delta_x_k = p_k[:d,:]
+                
+        # Compute Newton decrement
+        lambda_k = np.squeeze(delta_x_k.T@F.d2f(x_k)[:d,:d]@delta_x_k)**0.5
+        # Stopping condition
+        if 0.5*lambda_k**(2) <= tol:
+            break    
+            
+        # Call line search given by handle ls for computing step length
+        alpha_k, infoLS = ls(F, x_k, p_k, alpha0)            
+        # Update x_k
+        x_k = x_k + alpha_k*delta_x_k               
+        
+        # Store iteration info
+        info['xs'].append(x_k)
+        info['alphas'].append(alpha_k)
+            
+    return x_k, F.f(x_k), nIter, info
 
 def descentLS(F, descent, ls, alpha0, x0, tol, max_iter, stop_type):
     """

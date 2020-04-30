@@ -70,5 +70,5 @@ def split4ovr(y):
     unique_classes = np.unique(y).astype(int)
     y_ovr = dict()
     for i in unique_classes:
-        y_ovr[str(i)] = label2binary(y, i)
+        y_ovr[str(i)+"vsR"] = label2binary(y, i)
     return y_ovr

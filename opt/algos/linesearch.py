@@ -32,11 +32,11 @@ def backtracking(F, x_k, p, alpha0, rho, c1):
     """
     # Initialisation 
     alpha = alpha0
-    info = defaultdict(list)
+    info  = defaultdict(list)
     info['alphas'].append(alpha0)
     
     # Loop until condition broken
-    while F.f(x_k+alpha*p)>F.f(x_k)+c1*alpha*p.T@F.df(x_k):
+    while F.f(x_k+alpha*p[:x_k.shape[0],:])>F.f(x_k)+c1*alpha*p.T@F.df(x_k):
         # Calculate new step length
         alpha = rho * alpha
         # Save alpha to list

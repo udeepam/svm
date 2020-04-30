@@ -5,9 +5,11 @@ from collections import defaultdict
 # from opt.utils.preprocess import process_raw_data
 # process_raw_data(input_filepath='data/mnist/', 
 #                  output_filepath='data/filtered_mnist', 
-#                  classes2keep=[0,1,6,9])
+#                  classes2keep=[0,1,6,9],
+#                  nTrain=300,
+#                  nTest=100)
 
-def process_raw_data(input_filepath, output_filepath, classes2keep=None):
+def process_raw_data(input_filepath, output_filepath, classes2keep=None, nTrain=None, nTest=None):
     """
     Function to process the raw data
     
@@ -19,6 +21,10 @@ def process_raw_data(input_filepath, output_filepath, classes2keep=None):
         The output filepath to save the processed dataset.
     classes2keep : `Nonetype` or `list`
         The class labels to keep.
+    nTrain : `Nonetype` or `int`
+        Number of examples per class to keep in train set.
+    nTest : `Nonetype` or `int`
+        Number of examples per class to keep in test set.        
     """
     # Load MNIST
     mnist = MNIST(input_filepath)
@@ -34,10 +40,15 @@ def process_raw_data(input_filepath, output_filepath, classes2keep=None):
     x_train /= 255
     x_test /= 255    
     
-    # Filter the dataset
+    # Remove unwanted classes
     if classes2keep is not None:
         x_train, y_train = remove_classes(x_train, y_train, classes2keep)
         x_test, y_test   = remove_classes(x_test, y_test, classes2keep)
+        
+    if nTrain is not None:
+        x_train, y_train = filter_classes(x_train, y_train, nTrain)
+    if nTest is not None:
+        x_test, y_test   = filter_classes(x_test, y_test, 200)        
         
     # Save data 
     np.savez_compressed(output_filepath, 
@@ -72,3 +83,38 @@ def remove_classes(data, labels, classes2keep):
             new_data["label"].append(label)
             new_data["data"].append(data[i])
     return np.array(new_data["data"]), np.array(new_data["label"])
+
+def filter_classes(X, y, num=1000):
+    """
+    Function to cut number of examples in each class.
+    
+    Paramaters:
+    -----------
+    X : `numpy.ndarray`
+        (nData, nDim) The dataset.
+    y : `numpy.ndarray`
+        (nData,) The corresponding labels.
+    num : `int`
+        Number of examples to keep in each class.
+    
+    Returns:
+    --------
+    X_new : `numpy.ndarray`
+        (nClasses * num, features) The filtered dataset.
+    labels : `numpy.ndarray`
+        (nClasses * num,) The corresponding labels.        
+    """    
+    classes = np.unique(y)
+    for i, label in enumerate(classes):
+        indices = np.where(y==label)[0]
+        indices = np.random.choice(indices, num, replace=False)
+        if i == 0:
+            X_new = X[indices]
+            y_new = y[indices]
+        else:
+            X_new = np.vstack([X_new, X[indices]])
+            y_new = np.hstack([y_new, y[indices]])  
+    # Shuffle data
+    indices = np.arange(0,len(y_new))
+    np.random.shuffle(indices)
+    return X_new[indices], y_new[indices]
