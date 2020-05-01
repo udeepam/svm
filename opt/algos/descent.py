@@ -65,7 +65,7 @@ def feasible_newtonLS(F, ls, alpha0, x0, tol, max_iter):
             break    
             
         # Call line search given by handle ls for computing step length
-        alpha_k, infoLS = ls(F, x_k, p_k, alpha0)            
+        alpha_k, infoLS = ls(F, x_k, delta_x_k, alpha0)            
         # Update x_k
         x_k = x_k + alpha_k*delta_x_k               
         

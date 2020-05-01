@@ -5,7 +5,8 @@ from collections import defaultdict
 from opt.algos.descent import feasible_newtonLS
 from opt.algos.linesearch import backtracking
 
-def barrier_method(P, q, G, h, A, b, x0, t, mu, tol, max_iter):
+def barrier_method(P, q, G, h, A, b, x0, t=1, mu=1.1, tol=1e-6, max_iter=100, 
+                      tolNewton=1e-12, maxIterNewton=100, **kwargs):
     """
     Barrier method 
     
@@ -30,9 +31,13 @@ def barrier_method(P, q, G, h, A, b, x0, t, mu, tol, max_iter):
     mu : `float`
         Increase factor for t.
     tol : `float`
-        tolerance on the (duality gap ~ m/t)
+        Tolerance on the (duality gap ~ m/t).
     max_iter : `int`
         Maximum number of iterations.
+    tolNewton : `float`
+        Tolerance for feasible Newton method.
+    maxIterNewton : `int`
+        Maximum number of iterations for feasible Newton method.
     
     Returns:
     --------
@@ -55,10 +60,6 @@ def barrier_method(P, q, G, h, A, b, x0, t, mu, tol, max_iter):
     c2  = 0.9
     rho = 0.5
     
-    # Parameters to change
-    tolNewton = 1e-12
-    maxIterNewton = 100    
-    
     # Initialisation
     nIter = 0
     stopCond = False
@@ -78,7 +79,7 @@ def barrier_method(P, q, G, h, A, b, x0, t, mu, tol, max_iter):
     
     start_time = time.time()
     while stopCond is False and nIter < max_iter:
-        print("Barrier Method Iter: ", nIter)
+        print("Barrier method iteration: ", nIter)
         # Create function handler for centering step 
         # (needs to be redefined at each step because of changing "t")
         F = FeasibleNewtonCENT(P, q, G, h, A, b, t)
@@ -104,7 +105,7 @@ def barrier_method(P, q, G, h, A, b, x0, t, mu, tol, max_iter):
         # Increment number of iterations
         nIter += 1
     time_taken = time.time()-start_time
-    
+    # Save optimisation info
     info['x'] = x_k
     info['f(x)'] = F.f(x_k)
     info['t'] = t
@@ -308,8 +309,8 @@ class BarrierFunction:
         --------
         f(x) : `float`
             Evaluating logarithmic barrier function.
-        """      
-        return -np.sum(np.log(self.h - self.G@x + np.spacing(1)))
+        """
+        return -np.sum(np.log(self.h - self.G@x))
     
     def df(self, x):
         """
@@ -323,7 +324,7 @@ class BarrierFunction:
         df(x) : `numpy.ndarray`
             (d,1) Evaluating first derivative of the logarithmic barrier function.
         """        
-        tmp = 1 / (self.h - self.G@x + np.spacing(1))
+        tmp = 1 / (self.h - self.G@x)
         return self.G.T@tmp
     
     def d2f(self, x):
@@ -338,5 +339,5 @@ class BarrierFunction:
         d2f(x) : `numpy.ndarray`
             (d,d) Evaluating second derivative of the logarithmic barrier function.
         """    
-        tmp = np.squeeze(1 / (self.h - self.G@x + np.spacing(1)))
+        tmp = np.squeeze(1 / (self.h - self.G@x))
         return self.G.T@(np.diag(tmp)**2)@self.G   
