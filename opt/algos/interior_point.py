@@ -43,15 +43,15 @@ def barrier_method(P, q, G, h, A, b, x0, t=1, mu=1.1, tol=1e-6, max_iter=100,
     --------
     info : `dict`
         Information about optimisation.
-        - x:
-        - f(x):
-        - t: 
-        - iterations: 
-        - f_iterates: 
-        - dulaity_gaps:
-        - newton_iterations:
-        - iterations:
-        - time_taken:
+        - x: Solution to probem.
+        - f(x): Value of solution.
+        - t: Final barrier parameter.
+        - iterates: Sequence of iterates from optimisation. 
+        - f_iterates: Value of sequence of iterates.
+        - dulaity_gaps: Sequence of duality gaps.
+        - newton_iterations: Sequence of number of Newton iterations to solbe subproblem.
+        - iterations: Number of iterations for outer loop.
+        - time_taken: CPU time taken for optimisation.
     """
     # Parameters for centering step
     m = G.shape[0] 
@@ -112,6 +112,36 @@ def barrier_method(P, q, G, h, A, b, x0, t=1, mu=1.1, tol=1e-6, max_iter=100,
     info['iterations'] = nIter
     info['time_taken'] = round(time_taken, 6)
     return info
+
+def feasible_starting_point(y, C):
+    """
+    Calculate feasible starting point for 
+    Barrier method specific for SVM dual problem.
+      
+    Parameters:
+    -----------
+    y : `numpy.ndarray`
+        (nData,) The labels.
+    C : `float`
+        Regularization parameter. The strength of the regularization is 
+        inversely proportional to C. Must be strictly positive. 
+        The penalty is a squared l2 penalty.    
+    
+    Returns:
+    --------
+    x0 : numpy.ndarray`
+        (nData,1) The starting point for the feasible Newton method.
+    """
+    nData = len(y)
+    nPos = np.sum(y==1)
+    pos_neg_frac = nPos / (nData-nPos)
+    x0 = np.zeros((nData,1))
+    for i in range(nData):
+        if y[i]==1:
+            x0[i] = C*(1-nPos/nData)
+        else:
+            x0[i] = C*pos_neg_frac*(1-nPos/nData)
+    return x0
 
 class FeasibleNewtonCENT:
     def __init__(self, P, q, G, h, A, b, t):

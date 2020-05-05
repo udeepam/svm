@@ -29,12 +29,11 @@ def smo(y, K, C, loss_fn, tol=1e-3, max_iter=5, **kwargs):
     --------
     info : `dict`
         Information about optimisation.
-        - x:
-        - f(x):
-        - iterations: 
-        - f_iterates: 
-        - iterations:
-        - time_taken:
+        - x: Solution to probem.
+        - f(x): Value of solution.
+        - iterates: Sequence of iterates from optimisation. 
+        - iterations: Number of iterations for outer loop.
+        - time_taken: CPU time taken for optimisation.        
     """    
     n, _ = y.shape
     nIter = 0
@@ -53,7 +52,15 @@ def smo(y, K, C, loss_fn, tol=1e-3, max_iter=5, **kwargs):
         for i in range(n):        
             # Calculate E_i
             E[i] = w0 + (lambdas*y).T@K[:,i] - y[i]
-            if (y[i]*E[i] < -tol and lambdas[i] < C) or (y[i]*E[i] > tol and lambdas[i] > 0):
+            
+            if loss_fn == "L1":
+                cond1 = (y[i]*E[i] < -tol and lambdas[i] < C)
+                cond2 = (y[i]*E[i] > tol and lambdas[i] > 0)
+            elif loss_fn=="L2":
+                cond1 = (y[i]*E[i] < -tol)
+                cond2 = (y[i]*E[i] > tol and lambdas[i] > 0)           
+            
+            if cond1 or cond2:
                 j = np.random.randint(0, n)
                 # Make sure j does not equal i
                 while j == i:
@@ -67,7 +74,10 @@ def smo(y, K, C, loss_fn, tol=1e-3, max_iter=5, **kwargs):
                 lambda_j_old = lambdas[j]
                     
                 # Compute eta
-                eta = 2 * K[i, j] - K[i, i] - K[j, j]
+                if loss_fn == "L1":
+                    eta = 2 * K[i, j] - K[i, i] - K[j, j]
+                elif loss_fn=="L2":
+                    eta = 2 * K[i, j] - K[i, i] - K[j, j] - 1/C
                 if eta >= 0:
                     continue  
                 
