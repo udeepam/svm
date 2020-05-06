@@ -9,7 +9,7 @@ The constrained optimisation problems are solved using
 * Sequenital Minimal Optimisation  (SMO) method.
 * `CVXOPT` python package: https://cvxopt.org/userguide/coneprog.html
 
-Generalisation to the mutliclass setting can be achieved using
+Generalisation to the multiclass setting can be achieved using
 * One vs One (OVO)
 * One vs Rest (OVR)
 
