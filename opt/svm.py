@@ -3,9 +3,10 @@ from scipy import stats
 import cvxopt
 import time
 
-from opt.algos.interior_point import barrier_method, feasible_starting_point
+from opt.algos.interior_point import barrier_method
 from opt.algos.smo import smo
 from opt.utils.kernels import polynomial_kernel_matrix, gaussian_kernel_matrix
+from opt.utils.feasible import feasible_starting_point
 
 class SVC:
     """

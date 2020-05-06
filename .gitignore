@@ -1,5 +1,9 @@
 # Directories
 report/
+code/
+
+# Files
+code.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
