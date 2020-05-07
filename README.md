@@ -1,4 +1,4 @@
-# SVM: Comparing L1 and L2 SVMs optimised using the log barrier interior point and Sequential Minimal Optimisation algorithms
+# SVM: from scratch
 This repository contains python code for training and testing a multiclass soft-margin kernelised SVM implemented using NumPy. 
 
 ## Overview
