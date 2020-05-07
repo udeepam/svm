@@ -1,5 +1,7 @@
-# Support Vector Machine
+# SVM: Comparing L1 and L2 SVMs optimised using the log barrier interior point and Sequential Minimal Optimisation algorithms
 This repository contains python code for training and testing a multiclass soft-margin kernelised SVM implemented using NumPy. 
+
+## Overview
 The loss functions used are
 * L1-SVM: standard hinge loss ,
 * L2-SVM: squared hinge loss. 
@@ -15,7 +17,7 @@ Generalisation to the multiclass setting can be achieved using
 
 An example Jupyter notebook is provided for training and testing a support vector classifier (SVC) on a reduced version of the MNIST dataset.
 
-### Code
+## Code
 A list of optimisation algorithms that have been coded up in this repository include
 * Log barrier Interior point
 * Feasible Newton
@@ -28,7 +30,7 @@ Kernel functions available
 * Gaussian radial basis function (RBF) kernel
 * Polynomial kernel
 
-### Resources
+## Resources
 Useful resources
 * http://cs229.stanford.edu/materials/smo.pdf (psuedocode for the simplified SMO algorithm by Andrew Ng)
 * https://web.stanford.edu/~boyd/cvxbook/ (psuedocode for the barrier method and feasible Newton method)
